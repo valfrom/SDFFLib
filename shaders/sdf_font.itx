@@ -1,0 +1,47 @@
+CIwGxShaderTechnique
+{
+name "SDF_Font"
+
+// inMaterialAmbient = 'smooth' parameter (1st float [0;1])
+// inEmissive = 'color' parameter
+
+shader "vertex"
+	{
+	attribute highp vec4	inVert;
+	attribute mediump vec2	inUV0;
+
+	uniform lowp vec4	inMaterialAmbient;
+	uniform lowp vec4	inEmissive;
+	uniform highp mat4	inPMVMat;
+	uniform mediump vec2	inUVScale;
+
+	varying mediump vec2	outUV0;
+	varying lowp vec4	outCol;
+	varying mediump float	SmoothDistance;
+
+	void main(void)
+		{
+		gl_Position = inPMVMat*inVert;
+		outUV0 = inUV0*inUVScale;
+		outCol = inEmissive;
+		SmoothDistance = inMaterialAmbient.x/3.333;
+		} 
+	}
+
+shader "fragment"
+	{
+	varying mediump vec2	outUV0;
+	varying lowp vec4	outCol;
+	varying mediump float	SmoothDistance;
+
+	uniform sampler2D	inSampler0;
+
+	void main(void)
+		{
+		mediump float distAlpha = texture2D(inSampler0,outUV0).a;
+		lowp vec4 rgba = outCol;
+		rgba.a *= smoothstep(0.5-SmoothDistance,0.5+SmoothDistance,distAlpha);
+		gl_FragColor = rgba;
+		} 
+	} 
+}     

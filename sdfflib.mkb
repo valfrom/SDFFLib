@@ -1,0 +1,23 @@
+options
+{
+    lib
+	arm-arch=armv6
+    arm-fpu=vfp
+    arm-float-abi=softfp
+}
+
+subprojects
+{
+	sdfflib
+}
+
+includepath h
+includepath source
+
+files
+{
+	(h)
+	sdfflib.h
+	(source)
+	sdfflib.cpp
+}

@@ -1,0 +1,16 @@
+includepath h
+includepath src
+
+subprojects
+{
+	iwresmanager
+	iwgx
+}
+
+files
+{
+	(h)
+	sdfflib.h
+    (source)
+    sdfflib.cpp
+}

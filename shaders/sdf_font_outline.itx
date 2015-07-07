@@ -1,0 +1,66 @@
+CIwGxShaderTechnique
+{
+name "SDF_Font_Outline"
+
+// inMaterialAmbient = 'smooth' parameter (1st float [0;1]), 'border' parameter (2nd float [0;1])
+// inEmissive = 'color' parameter
+// inMaterialDiffuse = 'border color' parameter
+
+shader "vertex"
+	{
+	attribute highp vec4	inVert;
+	attribute mediump vec2	inUV0;
+
+	uniform lowp vec4	inMaterialAmbient;
+	uniform lowp vec4	inEmissive;
+	uniform lowp vec4	inMaterialDiffuse;
+	uniform highp mat4	inPMVMat;
+	uniform mediump vec2	inUVScale;
+
+	varying mediump vec2	outUV0;
+	varying lowp vec4	outCol;
+	varying lowp vec4	outBorderCol;
+	varying mediump float	SmoothDistance;
+	varying mediump float	outlineMaxValue0;
+	varying mediump float	outlineMaxValue1;
+	varying mediump float	center;
+
+	void main(void)
+		{
+		gl_Position = inPMVMat*inVert;
+		outUV0 = inUV0*inUVScale;
+		outCol = inEmissive;
+		outBorderCol =  inMaterialDiffuse;
+		SmoothDistance = inMaterialAmbient.x/3.333;
+		
+		mediump float Border = inMaterialAmbient.y/6.666;
+		outlineMaxValue0 = 0.5-Border;
+		outlineMaxValue1 = 0.5+Border;
+		center = outlineMaxValue0-Border;
+		} 
+	}
+
+shader "fragment"
+	{
+	varying mediump vec2	outUV0;
+	varying lowp vec4	outCol;
+	varying lowp vec4	outBorderCol;
+	varying mediump float	SmoothDistance;
+	varying mediump float	outlineMaxValue0;
+	varying mediump float	outlineMaxValue1;
+	varying mediump float	center;
+
+	uniform sampler2D	inSampler0;
+
+	void main(void)
+		{
+		mediump float distAlpha = texture2D(inSampler0,outUV0).a;
+		lowp vec4 rgba = outCol;
+			
+		rgba.xyz = mix(rgba.xyz,outBorderCol.xyz,smoothstep(outlineMaxValue1,outlineMaxValue0,distAlpha));
+		rgba.a *= smoothstep(center-SmoothDistance,center+SmoothDistance,distAlpha);
+		
+		gl_FragColor = rgba;
+		} 
+	} 
+}     
